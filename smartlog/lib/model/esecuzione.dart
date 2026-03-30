@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'converters.dart'; // Assicurati di importare i converter
 
-part 'generated/esecuzione.g.dart';
+part 'esecuzione.g.dart';
 
 @JsonSerializable()
 class Esecuzione {

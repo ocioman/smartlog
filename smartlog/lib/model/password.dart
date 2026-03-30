@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Password extends StatefulWidget {
   final TextEditingController passwordController;
 
-  const Password({Key? key, required this.passwordController}) : super(key: key);
+  const Password({super.key, required this.passwordController});
 
   @override
   State<Password> createState() => _PasswordFieldState();

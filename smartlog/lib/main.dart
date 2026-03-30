@@ -13,7 +13,11 @@ class App extends StatelessWidget{
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'BebasNeue',
+        fontFamily: 'Helvetica',
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.black,
+          selectionColor: Colors.black12,
+        ),
       ),
       home: LoginPage(),
     );

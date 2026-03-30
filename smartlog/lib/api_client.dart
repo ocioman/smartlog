@@ -7,31 +7,26 @@ import 'package:progettotps/model/user.dart';
 class ApiClient {
   final String baseUrl;
 
-  ApiClient({this.baseUrl = 'http://localhost/progettotps/index_php.php'});
+  ApiClient({this.baseUrl = 'http://localhost/smartlog/endpoint.php'});
 
-  // Headers comuni per le richieste POST
   Map<String, String> get _headers => {
     'Content-Type': 'application/json; charset=UTF-8',
   };
 
-  Future<void> signUp(String name1, String name2, String surname1, String surname2, String email, String password) async {
+  Future<void> signUp(String name1, String name2, String surname, String email, String password) async {
     final uri = Uri.parse(baseUrl);
 
-    // Prepara i dati, includendo solo i campi non vuoti
     final Map<String, dynamic> requestData = {
       'request': 'registrazione',
       'name1': name1,
-      'surname1': surname1,
+      'surname': surname,
       'email': email,
       'password': password,
     };
 
-    // Aggiungi i campi opzionali solo se non sono vuoti
+
     if (name2.isNotEmpty) {
-      requestData['name2'] = name2;
-    }
-    if (surname2.isNotEmpty) {
-      requestData['surname2'] = surname2;
+      requestData['name2']=name2;
     }
 
     final response = await http.post(
@@ -40,14 +35,13 @@ class ApiClient {
       body: jsonEncode(requestData),
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 201) {
       Map<String, dynamic> errorResponse = jsonDecode(response.body);
       throw Exception('Errore HTTP ${response.statusCode}: ${errorResponse['message']}');
     }
 
-    // Verifica se la registrazione è avvenuta con successo
     final decoded = jsonDecode(response.body);
-    if (decoded['success'] != true) {
+    if (decoded['status'] != 'success') {
       throw Exception(decoded['message'] ?? 'Errore durante la registrazione');
     }
   }
@@ -67,13 +61,12 @@ class ApiClient {
       body: jsonEncode(requestData),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode==200) {
       final decoded = json.decode(response.body);
-      if (decoded['success'] == true) {
+      if (decoded['status'] == 'success') {
         return User.fromJson({
-          ...decoded['utente'],
-          'password': password,
-          'sessioni': [],
+          ...decoded['data'],
+          'allenamenti': [],
         });
       } else {
         throw Exception(decoded['message']);
@@ -84,15 +77,14 @@ class ApiClient {
     }
   }
 
-  // Questa rimane GET perché è una operazione di lettura
   Future<List<Allenamento>> fetchAllenamenti(int userID) async {
-    final uri = Uri.parse('$baseUrl?request=ottieniAllenamenti&userID=$userID');
+    final uri = Uri.parse('$baseUrl?request=fetchAllenamenti&uid=$userID');
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
 
-      if (decoded['success'] == true && decoded['data'] != null) {
+      if (decoded['status'] == 'success' && decoded['data'] != null) {
         final data = decoded['data'];
         return (data as List).map((json) => Allenamento.fromJson(json)).toList();
       } else {
@@ -107,8 +99,8 @@ class ApiClient {
     final uri = Uri.parse(baseUrl);
 
     final requestData = {
-      'request': 'creaAllenamento',
-      'userID': userID,
+      'request': 'addAllenamento',
+      'uid': userID,
       'data': data.toIso8601String(),
     };
 
@@ -118,9 +110,9 @@ class ApiClient {
       body: jsonEncode(requestData),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       final decoded = json.decode(response.body);
-      if (decoded['success'] == true) {
+      if (decoded['status'] == 'success') {
         return Allenamento.fromJson(decoded['data']);
       } else {
         throw Exception(decoded['message'] ?? 'Errore nella creazione dell\'allenamento');
@@ -135,7 +127,7 @@ class ApiClient {
     final uri = Uri.parse(baseUrl);
 
     final requestData = {
-      'request': 'aggiungiEsecuzione',
+      'request': 'addEsecuzione',
       'trainingID': esecuzione.trainingID,
       'nomeEsercizio': esecuzione.nomeEsercizio,
       'kg': esecuzione.kg,
@@ -149,29 +141,26 @@ class ApiClient {
       body: jsonEncode(requestData),
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 201) {
       Map<String, dynamic> errorResponse = jsonDecode(response.body);
       throw Exception('Errore HTTP ${response.statusCode}: ${errorResponse['message'] ?? 'Errore nell\'aggiunta dell\'esecuzione'}');
     }
 
-    // Verifica se l'operazione è avvenuta con successo
     final decoded = jsonDecode(response.body);
-    if (decoded['success'] != true) {
+    if (decoded['status'] != 'success') {
       throw Exception(decoded['message'] ?? 'Errore nell\'aggiunta dell\'esecuzione');
     }
   }
 
-  // Nuovi metodi per la modifica e eliminazione
-
   Future<void> modificaAllenamento(int trainingID, DateTime newData) async {
     final uri = Uri.parse(baseUrl);
     final requestData = {
-      'request': 'modificaAllenamento',
+      'request': 'editAllenamento',
       'trainingID': trainingID,
       'data': newData.toIso8601String(),
     };
 
-    final response = await http.post(
+    final response = await http.put(
       uri,
       headers: _headers,
       body: jsonEncode(requestData),
@@ -183,22 +172,17 @@ class ApiClient {
     }
 
     final decoded = jsonDecode(response.body);
-    if (decoded['success'] != true) {
+    if (decoded['status'] != 'success') {
       throw Exception(decoded['message'] ?? 'Errore nella modifica dell\'allenamento');
     }
   }
 
   Future<void> eliminaAllenamento(int trainingID) async {
-    final uri = Uri.parse(baseUrl);
-    final requestData = {
-      'request': 'eliminaAllenamento',
-      'trainingID': trainingID,
-    };
+    final uri = Uri.parse('$baseUrl/allenamenti/$trainingID');
 
-    final response = await http.post(
+
+    final response = await http.delete(
       uri,
-      headers: _headers,
-      body: jsonEncode(requestData),
     );
 
     if (response.statusCode != 200) {
@@ -207,7 +191,7 @@ class ApiClient {
     }
 
     final decoded = jsonDecode(response.body);
-    if (decoded['success'] != true) {
+    if (decoded['status'] != 'success') {
       throw Exception(decoded['message'] ?? 'Errore nell\'eliminazione dell\'allenamento');
     }
   }
@@ -215,7 +199,8 @@ class ApiClient {
   Future<void> modificaEsecuzione(Esecuzione esecuzione) async {
     final uri = Uri.parse(baseUrl);
     final requestData = {
-      'request': 'modificaEsecuzione',
+      'request': 'editEsecuzione',
+      'trainingID': esecuzione.trainingID,
       'executionID': esecuzione.executionID,
       'nomeEsercizio': esecuzione.nomeEsercizio,
       'kg': esecuzione.kg,
@@ -223,7 +208,7 @@ class ApiClient {
       'note': esecuzione.note ?? '',
     };
 
-    final response = await http.post(
+    final response = await http.put(
       uri,
       headers: _headers,
       body: jsonEncode(requestData),
@@ -235,22 +220,16 @@ class ApiClient {
     }
 
     final decoded = jsonDecode(response.body);
-    if (decoded['success'] != true) {
+    if (decoded['status'] != 'success') {
       throw Exception(decoded['message'] ?? 'Errore nella modifica dell\'esecuzione');
     }
   }
 
   Future<void> eliminaEsecuzione(int executionID) async {
-    final uri = Uri.parse(baseUrl);
-    final requestData = {
-      'request': 'eliminaEsecuzione',
-      'executionID': executionID,
-    };
+    final uri = Uri.parse('$baseUrl/esecuzioni/$executionID');
 
-    final response = await http.post(
+    final response = await http.delete(
       uri,
-      headers: _headers,
-      body: jsonEncode(requestData),
     );
 
     if (response.statusCode != 200) {
@@ -259,7 +238,7 @@ class ApiClient {
     }
 
     final decoded = jsonDecode(response.body);
-    if (decoded['success'] != true) {
+    if (decoded['status'] != 'success') {
       throw Exception(decoded['message'] ?? 'Errore nell\'eliminazione dell\'esecuzione');
     }
   }

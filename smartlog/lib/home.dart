@@ -23,10 +23,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _caricaAllenamenti();
+    _caricaAllenamenti(context);
   }
 
-  Future<void> _caricaAllenamenti() async {
+  Future<void> _caricaAllenamenti(BuildContext context) async {
     try {
       final lista = await apiClient.fetchAllenamenti(widget.user.userID);
       setState(() {
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _aggiungiAllenamento() async {
+  Future<void> _aggiungiAllenamento(BuildContext context) async {
     final data = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -55,8 +55,7 @@ class _HomePageState extends State<HomePage> {
               onPrimary: Colors.white, // Header text color
               surface: Colors.white, // Calendar background
               onSurface: Colors.black, // Calendar text
-            ),
-            dialogBackgroundColor: Colors.white,
+            ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );
@@ -79,7 +78,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _modificaAllenamento(Allenamento allenamento) async {
+  Future<void> _modificaAllenamento(Allenamento allenamento, BuildContext context) async {
     final newDate = await showDatePicker(
       context: context,
       initialDate: allenamento.data,
@@ -93,8 +92,7 @@ class _HomePageState extends State<HomePage> {
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black,
-            ),
-            dialogBackgroundColor: Colors.white,
+            ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );
@@ -112,7 +110,21 @@ class _HomePageState extends State<HomePage> {
         });
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Allenamento modificato con successo!')),
+            SnackBar(
+              content:
+              Center(
+                child: Text(
+                  'Allenamento modificato con successo!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              elevation: null,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.black,
+            )
         );
       } catch (e) {
         if (!context.mounted) return;
@@ -123,7 +135,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _eliminaAllenamento(Allenamento allenamento) async {
+  Future<void> _eliminaAllenamento(Allenamento allenamento, BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -155,9 +167,23 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           allenamenti.removeWhere((a) => a.trainingID == allenamento.trainingID);
         });
-        if (!context.mounted) return;
+        if(!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Allenamento eliminato con successo!')),
+            SnackBar(
+              content:
+              Center(
+                child: Text(
+                  'Allenamento eliminato con successo!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              elevation: null,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.black,
+            )
         );
       } catch (e) {
         if (!context.mounted) return;
@@ -169,7 +195,7 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  Future<void> _aggiungiEsecuzione(Allenamento allenamento) async {
+  Future<void> _aggiungiEsecuzione(Allenamento allenamento, BuildContext context) async {
     final controllerNomeEsercizio = TextEditingController();
     final controllerKg = TextEditingController();
     final controllerRipetizioni = TextEditingController();
@@ -194,7 +220,7 @@ class _HomePageState extends State<HomePage> {
 
     final eseguito = await showDialog<Esecuzione>(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return Theme(
           data: Theme.of(context).copyWith(
             textButtonTheme: TextButtonThemeData(
@@ -265,6 +291,26 @@ class _HomePageState extends State<HomePage> {
                       trainingID: allenamento.trainingID,
                     );
                     Navigator.pop(context, esecuzione);
+                  }else{
+                    if(!context.mounted) return;
+                    Navigator.of(dialogContext).pop();
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(
+                          content:
+                          Center(
+                            child: Text(
+                              'Inserire i campi richiesti',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          elevation: null,
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Color(0xFFC62828),
+                        )
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -299,7 +345,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _modificaEsecuzione(Allenamento allenamento, Esecuzione esecuzione) async {
+  Future<void> _modificaEsecuzione(Allenamento allenamento, Esecuzione esecuzione, BuildContext context) async {
     final controllerNomeEsercizio = TextEditingController(text: esecuzione.nomeEsercizio);
     final controllerKg = TextEditingController(text: esecuzione.kg.toString());
     final controllerRipetizioni = TextEditingController(text: esecuzione.ripetizioni.toString());
@@ -324,7 +370,7 @@ class _HomePageState extends State<HomePage> {
 
     final eseguitoModificato = await showDialog<Esecuzione>(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return Theme(
           data: Theme.of(context).copyWith(
             textButtonTheme: TextButtonThemeData(
@@ -395,6 +441,25 @@ class _HomePageState extends State<HomePage> {
                       trainingID: esecuzione.trainingID,
                     );
                     Navigator.pop(context, modifiedEsecuzione);
+                  }else{
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        SnackBar(
+                          content:
+                          Center(
+                            child: Text(
+                              'Inserire i campi richiesti',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          elevation: null,
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: Color(0xFFC62828),
+                        )
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -436,7 +501,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _eliminaEsecuzione(Allenamento allenamento, Esecuzione esecuzione) async {
+  Future<void> _eliminaEsecuzione(Allenamento allenamento, Esecuzione esecuzione, BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -473,9 +538,23 @@ class _HomePageState extends State<HomePage> {
             );
           }
         });
-        if (!context.mounted) return;
+        if(!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Esecuzione eliminata con successo!')),
+            SnackBar(
+              content:
+              Center(
+                child: Text(
+                  'Esecuzione eliminata con successo!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              elevation: null,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.black,
+            )
         );
       } catch (e) {
         if (!context.mounted) return;
@@ -536,7 +615,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 8),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _aggiungiAllenamento,
+                    onPressed: ()=>_aggiungiAllenamento(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -555,7 +634,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 10),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black),
                     borderRadius: BorderRadius.circular(16),
@@ -607,9 +686,9 @@ class _HomePageState extends State<HomePage> {
                                       PopupMenuButton<String>(
                                         onSelected: (value) {
                                           if (value == 'edit') {
-                                            _modificaAllenamento(allenamento);
+                                            _modificaAllenamento(allenamento, context);
                                           } else if (value == 'delete') {
-                                            _eliminaAllenamento(allenamento);
+                                            _eliminaAllenamento(allenamento, context);
                                           }
                                         },
                                         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -638,13 +717,12 @@ class _HomePageState extends State<HomePage> {
                                       // IconButton for adding execution
                                       IconButton(
                                         icon: const Icon(Icons.add, color: Colors.black),
-                                        onPressed: () => _aggiungiEsecuzione(allenamento),
+                                        onPressed: () => _aggiungiEsecuzione(allenamento, context),
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
                               if (allenamento.esecuzioni == null || allenamento.esecuzioni!.isEmpty)
                                 const Text('Nessuna esecuzione')
                               else
@@ -652,18 +730,18 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: allenamento.esecuzioni!.map((e) {
                                     return Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
+                                      padding: const EdgeInsets.only(top: 0.0),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Expanded( // Also apply Expanded here for execution details
+                                          Expanded(
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Baseline(
                                                   baseline: 20,
                                                   baselineType: TextBaseline.alphabetic,
-                                                  child: Text('${e.nomeEsercizio}: ${e.kg} kg x ${e.ripetizioni} rip.',
+                                                  child: Text('• ${e.nomeEsercizio}: ${e.kg} kg x ${e.ripetizioni} rip.',
                                                       style: const TextStyle(fontSize: 20)),
                                                 ),
                                                 if (e.note != null && e.note!.isNotEmpty)
@@ -679,9 +757,9 @@ class _HomePageState extends State<HomePage> {
                                           PopupMenuButton<String>(
                                             onSelected: (value) {
                                               if (value == 'edit') {
-                                                _modificaEsecuzione(allenamento, e);
+                                                _modificaEsecuzione(allenamento, e, context);
                                               } else if (value == 'delete') {
-                                                _eliminaEsecuzione(allenamento, e);
+                                                _eliminaEsecuzione(allenamento, e, context);
                                               }
                                             },
                                             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

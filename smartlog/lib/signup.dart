@@ -14,8 +14,7 @@ class SignUpPage extends StatefulWidget{
 class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController controllerName1=TextEditingController();
   final TextEditingController controllerName2=TextEditingController();
-  final TextEditingController controllerSurname1=TextEditingController();
-  final TextEditingController controllerSurname2=TextEditingController();
+  final TextEditingController controllerSurname=TextEditingController();
   final TextEditingController controllerEmail=TextEditingController();
   final TextEditingController controllerPassword=TextEditingController();
 
@@ -24,29 +23,66 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _handleSignup(BuildContext context) async{
     final name1=controllerName1.text.trim();
     final name2=controllerName2.text.trim();
-    final surname1=controllerSurname1.text.trim();
-    final surname2=controllerSurname2.text.trim();
+    final surname=controllerSurname.text.trim();
     final email=controllerEmail.text.trim();
     final password=controllerPassword.text.trim();
 
-    try{
-      await apiClient.signUp(name1, name2, surname1, surname2, email, password);
-
+    if(name1.isEmpty || surname.isEmpty || email.isEmpty || password.isEmpty){
       if(!context.mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => LoginPage()),
-      );
-
-    }catch(e){
-      if (!context.mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registrazione fallita: ${e.toString()}')),
+          SnackBar(
+            content:
+            Center(
+              child: Text(
+                'Inserire i campi richiesti',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            elevation: null,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Color(0xFFC62828),
+          )
       );
-    }
+    }else{
+      try{
+        await apiClient.signUp(name1, name2, surname, email, password);
 
+        if(!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+              Center(
+                child: Text(
+                  'Registrazione avvenuta con successo!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              elevation: null,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.black,
+            )
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => LoginPage()),
+        );
+
+      }catch(e){
+        if (!context.mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registrazione fallita: ${e.toString()}')),
+        );
+      }
+
+    }
   }
 
 
@@ -105,7 +141,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     );
                   },
                   child: const Text(
-                    'Hai già un account? Esegui il log in',
+                    'Hai già un account? Esegui il log in!',
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                       color: Colors.black,
@@ -144,20 +180,10 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         const SizedBox(height: 16),
                         TextField(
-                          controller: controllerSurname1,
+                          controller: controllerSurname,
                           decoration: textFieldDecoration.copyWith(
                             labelText: 'Cognome',
                             hintText: 'Cognome',
-                            labelStyle: const TextStyle(color: Colors.black),
-                            floatingLabelStyle: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: controllerSurname2,
-                          decoration: textFieldDecoration.copyWith(
-                            labelText: 'Secondo cognome (opzionale)',
-                            hintText: 'Secondo cognome (opzionale)',
                             labelStyle: const TextStyle(color: Colors.black),
                             floatingLabelStyle: const TextStyle(color: Colors.black),
                           ),
@@ -189,7 +215,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
-                            child: const Text('Crea l\'account'),
+                            child: const Text('Registrati'),
                           ),
                         ),
                       ],

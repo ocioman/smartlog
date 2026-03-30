@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:progettotps/api_client.dart';
 import 'package:progettotps/home.dart';
 import 'package:progettotps/model/password.dart';
-import 'package:progettotps/model/user.dart';
 import 'package:progettotps/signup.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,21 +22,55 @@ class _LoginPageState extends State<LoginPage> {
     final email = controllerEmail.text.trim();
     final password = controllerPassword.text.trim();
 
-    try {
-      final user = await apiClient.login(email, password);
-
-      if (!context.mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomePage(user: user)),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-
+    if(email.isEmpty || password.isEmpty){
+      if(!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login fallito: ${e.toString()}')),
+        SnackBar(
+            content:
+              Center(
+                child: Text(
+                    'Inserire i campi richiesti',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                ),
+          ),
+          elevation: null,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Color(0xFFC62828),
+        )
       );
+    }else{
+      try {
+        final user = await apiClient.login(email, password);
+
+        if (!context.mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomePage(user: user)),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+              Center(
+                child: Text(
+                  'Credenziali non valide',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              elevation: null,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Color(0xFFC62828),
+            )
+        );
+      }
     }
   }
 
@@ -94,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   },
                   child: const Text(
-                    'Torna alla registrazione',
+                    'Non hai un account? Registrati ora!',
                     style: TextStyle(
                       decoration: TextDecoration.underline,
                       color: Colors.black,

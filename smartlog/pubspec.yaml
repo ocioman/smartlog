@@ -27,6 +27,6 @@ flutter:
     - assets/logos/logo.svg
     - assets/logos/icon.svg
   fonts:
-    - family: BebasNeue
+    - family: Helvetica
       fonts:
-        - asset: assets/fonts/BebasNeuePro-ExpBd.otf
+        - asset: assets/fonts/Helvetica-Bold.ttf

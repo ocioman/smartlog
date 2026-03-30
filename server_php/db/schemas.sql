@@ -17,16 +17,9 @@ CREATE TABLE users (
 -- Table: allenamenti
 CREATE TABLE allenamenti (
     trainingID INT AUTO_INCREMENT PRIMARY KEY,
-    data DATE NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Table: sessioni
-CREATE TABLE sessioni (
-    sessionID INT AUTO_INCREMENT PRIMARY KEY,
-    userID INT NOT NULL,
-    trainingID INT NOT NULL,
-    CONSTRAINT sessioni_utenti FOREIGN KEY(userID) REFERENCES users(userID) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT sessioni_allenamenti FOREIGN KEY(trainingID) REFERENCES allenamenti(trainingID) ON UPDATE CASCADE ON DELETE CASCADE
+    userID INT NOT NULL, 
+    data DATE NOT NULL,
+    CONSTRAINT allenamenti_users FOREIGN KEY(userID) REFERENCES users(userID) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Table: esecuzioni
@@ -35,6 +28,7 @@ CREATE TABLE esecuzioni (
     trainingID INT NOT NULL,
     nomeEsercizio VARCHAR(255) NOT NULL,
     ripetizioni INT NOT NULL,
+    kg FLOAT NOT NULL,
     note TEXT,
     CONSTRAINT esecuzioni_allenamenti FOREIGN KEY(trainingID) REFERENCES allenamenti(trainingID) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
