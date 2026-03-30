@@ -35,6 +35,10 @@ class ApiClient {
       body: jsonEncode(requestData),
     );
 
+    if(response.statusCode==409){
+      throw Exception('409');
+    }
+
     if (response.statusCode != 201) {
       Map<String, dynamic> errorResponse = jsonDecode(response.body);
       throw Exception('Errore HTTP ${response.statusCode}: ${errorResponse['message']}');

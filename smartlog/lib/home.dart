@@ -624,7 +624,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: const Text('Aggiungi allenamento'),
+                    child: const Text('Aggiungi un allenamento'),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -634,11 +634,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const SizedBox(height: 10),
                 Container(
-                  padding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  padding: EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
                   child: allenamenti.isEmpty
                       ? const Center(
                     child: Text(
@@ -658,7 +654,7 @@ class _HomePageState extends State<HomePage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        elevation: 2,
+                        elevation: 8,
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
@@ -667,7 +663,6 @@ class _HomePageState extends State<HomePage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // Wrap the Text with Expanded to allow it to take available space
                                   Expanded(
                                     child: Text(
                                       'Allenamento del ${allenamento.data.toLocal().toString().split(" ")[0]}',
@@ -675,14 +670,13 @@ class _HomePageState extends State<HomePage> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                       ),
-                                      overflow: TextOverflow.ellipsis, // Add ellipsis if text is too long
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  // Use a Row to keep the PopupMenuButton and IconButton together
+
                                   Row(
-                                    mainAxisSize: MainAxisSize.min, // To keep the row as small as possible
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      // PopupMenuButton for workout options
                                       PopupMenuButton<String>(
                                         onSelected: (value) {
                                           if (value == 'edit') {
@@ -701,20 +695,19 @@ class _HomePageState extends State<HomePage> {
                                             child: Text('Elimina Allenamento'),
                                           ),
                                         ],
-                                        color: Colors.grey[200], // Set the background color of the PopupMenu
+                                        color: Colors.grey[200],
                                         child: const Padding(
-                                          padding: EdgeInsets.all(8.0), // Add some padding around the dots
+                                          padding: EdgeInsets.all(8.0),
                                           child: Text(
-                                            '•••', // Three dots character
+                                            '•••',
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontSize: 20, // Adjust font size as needed
+                                              fontSize: 20,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
                                       ),
-                                      // IconButton for adding execution
                                       IconButton(
                                         icon: const Icon(Icons.add, color: Colors.black),
                                         onPressed: () => _aggiungiEsecuzione(allenamento, context),
@@ -772,7 +765,7 @@ class _HomePageState extends State<HomePage> {
                                                 child: Text('Elimina Esecuzione'),
                                               ),
                                             ],
-                                            color: Colors.grey[200], // Set the background color of the PopupMenu
+                                            color: Colors.grey[200],
                                             child: const Padding(
                                               padding: EdgeInsets.all(8.0),
                                               child: Text(

@@ -77,9 +77,29 @@ class _SignUpPageState extends State<SignUpPage> {
       }catch(e){
         if (!context.mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Registrazione fallita: ${e.toString()}')),
-        );
+        if(e.toString()=='Exception: 409'){
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                Center(
+                  child: Text(
+                    'Utente già registrato',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                elevation: null,
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: Color(0xFFC62828),
+              )
+          );
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registrazione fallita: ${e.toString()}')),
+          );
+        }
       }
 
     }

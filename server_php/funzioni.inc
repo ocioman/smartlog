@@ -26,10 +26,25 @@ function handleSignup($dataReq): void
     $email=$dataReq['email']??null;
     $password=$dataReq['password']??null;
 
-    //+ validazione lato client
+    $checkEmailConflictQuery="SELECT COUNT(*) as emailCount FROM users WHERE email=:email";
+
+    $checkEmailConflict=$connection->prepare($checkEmailConflictQuery);
+
+    $checkEmailConflict->execute(
+        [
+            "email"=>$email,
+        ]
+    );
+
+    $emailCount=$checkEmailConflict->fetch(PDO::FETCH_ASSOC);
+
+    if($emailCount['emailCount']!=0)
+        throw new Exception('Utente già registrato',409); //409=conflict
 
     if($name1==null || $surname==null || $email==null || $password==null)
         throw new Exception('Campi mancanti', 422); //422=unprocessable entity
+
+    $hashedPass=password_hash($password, PASSWORD_DEFAULT);
 
     //con : uso i named parameters che verranno sostituiti con l'array associativo passado a execute -> più leggibile
     $insertUserQuery="INSERT INTO users(name1, name2, surname, email, password)
@@ -42,7 +57,7 @@ function handleSignup($dataReq): void
         'name2'=>$name2,
         'surname'=>$surname,
         'email'=>$email,
-        'password'=>$password
+        'password'=>$hashedPass,
         ]);
 }
 
@@ -58,8 +73,8 @@ function handleLogin($dataReq): array
     if($email==null || $password=='null')
         throw new Exception('Campi mancanti', 422);
 
-    $logUserQuery="SELECT userID, name1, name2, surname, email FROM USERS 
-                    WHERE email=:email AND password=:password";
+    $logUserQuery="SELECT userID, name1, name2, surname, email, password FROM USERS 
+                    WHERE email=:email";
 
     /*
      * Eseguire fetch degli allenamenti (+ esecuzioni)
@@ -69,13 +84,15 @@ function handleLogin($dataReq): array
 
     $logUser->execute([
         'email'=>$email,
-        'password'=>$password,
     ]);
 
     $user=$logUser->fetch(PDO::FETCH_ASSOC);
 
-    if(!$user)
-        throw new Exception("Credenziali non valide", 401); //401=unauthorized
+    if(!password_verify($password, $user['password'])){
+        throw new Exception('Credenziali non valide', 401);
+    }
+
+    unset($user['password']);
 
     return $user;
 }
