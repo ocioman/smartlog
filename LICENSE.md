@@ -1,4 +1,4 @@
-#EN
+# EN
 
 ## License
 
@@ -19,7 +19,7 @@ This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 In
 For the full legal text, please visit: [https://creativecommons.org/licenses/by-nc/4.0/legalcode](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
 
 
-#IT
+# IT
 
 ## Licenza
 
