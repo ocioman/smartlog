@@ -1,4 +1,6 @@
-# License
+#EN
+
+## License
 
 This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/).
 
@@ -16,9 +18,10 @@ This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 In
 
 For the full legal text, please visit: [https://creativecommons.org/licenses/by-nc/4.0/legalcode](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
 
-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Licenza
+#IT
+
+## Licenza
 
 Quest'opera è distribuita con Licenza [Creative Commons Attribuzione - Non commerciale 4.0 Internazionale](http://creativecommons.org/licenses/by-nc/4.0/).
 
