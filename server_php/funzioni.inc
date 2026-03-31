@@ -186,7 +186,7 @@ function addAllenamento($dataReq): array{
     return $insertedAllenamento;
 }
 
-function addEsecuzione($dataReq): void{
+function addEsecuzione($dataReq): array{
     $connection=connect("localhost", "root","", "smartlog");
 
     $trainingID=$dataReq['trainingID']??null;
@@ -208,6 +208,19 @@ function addEsecuzione($dataReq): void{
     $addEsecuzione->bindParam(':note', $note, PDO::PARAM_STR);
 
     $addEsecuzione->execute();
+
+    $executionID=$connection->lastInsertId();
+
+    $fetchEsecuzioneQuery="SELECT * FROM esecuzioni WHERE executionID=:executionID";
+
+    $fetchEsecuzione=$connection->prepare($fetchEsecuzioneQuery);
+    $fetchEsecuzione->bindParam(':executionID',$executionID,PDO::PARAM_INT);
+    $fetchEsecuzione->execute();
+
+    $insertedEsecuzione=$fetchEsecuzione->fetch();
+    if($insertedEsecuzione===false) throw  new Exception('Errore nell\'inserimento dell\'esecuzione', 500);
+
+    return $insertedEsecuzione;
 }
 
 function editAllenamento($dataReq): void{
@@ -314,8 +327,8 @@ function handlePost($dataReq): string{
             http_response_code(201);
             break;
         case "addEsecuzione":
-            addEsecuzione($dataReq);
-            $JSONres=json_encode(generateResponse('success', 'Esecuzione inserita con successo', null));
+            $insertedEsecuzione=addEsecuzione($dataReq);
+            $JSONres=json_encode(generateResponse('success', 'Esecuzione inserita con successo', $insertedEsecuzione));
             http_response_code(201);
             break;
         default:

@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
       floatingLabelStyle: const TextStyle(color: Colors.black),
     );
 
-    final eseguito = await showDialog<Esecuzione>(
+    await showDialog<Esecuzione>(
       context: context,
       builder: (dialogContext) {
         return Theme(
@@ -276,21 +276,29 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async{
                   final kg = double.tryParse(controllerKg.text);
                   final ripetizioni = int.tryParse(controllerRipetizioni.text);
                   final esercizio = controllerNomeEsercizio.text;
 
                   if (kg != null && ripetizioni != null && esercizio.isNotEmpty) {
-                    final esecuzione = Esecuzione(
-                      executionID: 0, // sarà gestito dal backend
-                      nomeEsercizio: esercizio,
-                      kg: kg,
-                      ripetizioni: ripetizioni,
-                      note: controllerNote.text.isEmpty ? null : controllerNote.text,
-                      trainingID: allenamento.trainingID,
-                    );
-                    Navigator.pop(context, esecuzione);
+                      try {
+                        Esecuzione added=await apiClient.aggiungiEsecuzione(allenamento.trainingID, esercizio, kg, ripetizioni, controllerNote.text.trim());
+                        setState(() {
+                          final index = allenamenti.indexWhere((a) => a.trainingID == allenamento.trainingID);
+                          if (index != -1) {
+                            allenamenti[index].esecuzioni ??= [];
+                            allenamenti[index].esecuzioni!.add(added);
+                          }
+                        });
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Errore nell\'aggiunta dell\'esecuzione: ${e.toString()}')),
+                        );
+                      }
+                      if(!dialogContext.mounted) return;
+                      Navigator.of(dialogContext).pop();
                   }else{
                     if(!context.mounted) return;
                     Navigator.of(dialogContext).pop();
@@ -324,25 +332,6 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
-
-    if (eseguito != null) {
-      try {
-        await apiClient.aggiungiEsecuzione(eseguito);
-        setState(() {
-          final index = allenamenti.indexWhere((a) => a.trainingID == allenamento.trainingID);
-          if (index != -1) {
-            allenamenti[index].esecuzioni ??= [];
-            allenamenti[index].esecuzioni!.add(eseguito);
-          }
-        });
-      } catch (e) {
-        if (!context.mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Errore nell\'aggiunta dell\'esecuzione: ${e.toString()}')),
-        );
-      }
-    }
   }
 
   Future<void> _modificaEsecuzione(Allenamento allenamento, Esecuzione esecuzione, BuildContext context) async {
@@ -368,7 +357,7 @@ class _HomePageState extends State<HomePage> {
       floatingLabelStyle: const TextStyle(color: Colors.black),
     );
 
-    final eseguitoModificato = await showDialog<Esecuzione>(
+    final updatedExecution = await showDialog<Esecuzione>(
       context: context,
       builder: (dialogContext) {
         return Theme(
@@ -474,23 +463,37 @@ class _HomePageState extends State<HomePage> {
       },
     );
 
-    if (eseguitoModificato != null) {
+    if (updatedExecution != null) {
       try {
-        await apiClient.modificaEsecuzione(eseguitoModificato);
+        await apiClient.modificaEsecuzione(updatedExecution);
         setState(() {
           final allenamentoIndex = allenamenti.indexWhere((a) => a.trainingID == allenamento.trainingID);
           if (allenamentoIndex != -1) {
             final esecuzioneIndex = allenamenti[allenamentoIndex].esecuzioni!.indexWhere(
-                  (e) => e.executionID == eseguitoModificato.executionID,
+                  (e) => e.executionID == updatedExecution.executionID,
             );
             if (esecuzioneIndex != -1) {
-              allenamenti[allenamentoIndex].esecuzioni![esecuzioneIndex] = eseguitoModificato;
+              allenamenti[allenamentoIndex].esecuzioni![esecuzioneIndex] = updatedExecution;
             }
           }
         });
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Esecuzione modificata con successo!')),
+            SnackBar(
+              content:
+              Center(
+                child: Text(
+                  'Esecuzione modificata con successo!',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              elevation: null,
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.black,
+            )
         );
       } catch (e) {
         if (!context.mounted) return;
@@ -742,7 +745,7 @@ class _HomePageState extends State<HomePage> {
                                                     baseline: 20,
                                                     baselineType: TextBaseline.alphabetic,
                                                     child: Text('Note: ${e.note}',
-                                                        style: const TextStyle(fontSize: 12, color: Colors.black)),
+                                                        style: const TextStyle(fontSize: 16, color: Colors.black)),
                                                   ),
                                               ],
                                             ),
