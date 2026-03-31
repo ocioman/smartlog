@@ -1,0 +1,5 @@
+![1](smartlog/smartlog_photos/1.png)
+![2](smartlog/smartlog_photos/2.png)
+![3](smartlog/smartlog_photos/3.png)
+![4](smartlog/smartlog_photos/4.png)
+![5](smartlog/smartlog_photos/5.png)
